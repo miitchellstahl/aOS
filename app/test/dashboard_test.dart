@@ -101,30 +101,60 @@ void main() {
     },
   );
 
-  testWidgets(
-    'overlay takes focus; Escape dismisses without activating underlying todo',
-    (tester) async {
-      final contracts = loadContracts();
-      final controller = RecordingController(
-        contracts,
-        contracts.dashboard(fixture('examples/dashboard.json')),
-      );
-      await tester.pumpWidget(DashboardApp(controller: controller));
-      await tester.pump();
-      controller.acceptFrame(jsonEncode(fixture('examples/snapshot.json')));
-      controller.acceptFrame(jsonEncode(fixture('examples/overlay.json')));
-      await tester.pump();
-      expect(find.text('Briefing ready'), findsOneWidget);
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      await tester.pump();
-      expect(controller.dismissed, 1);
-      expect(controller.activated, isEmpty);
-      expect(controller.overlay, isNull);
-      expect(tester.takeException(), isNull);
-      await tester.pumpWidget(const SizedBox());
-      controller.dispose();
-    },
-  );
+  for (final dismissal in ['escape', 'enter', 'expiry']) {
+    testWidgets(
+      'overlay restores previous focus after $dismissal without activating underlying todo',
+      (tester) async {
+        final contracts = loadContracts();
+        final controller = RecordingController(
+          contracts,
+          contracts.dashboard(fixture('examples/dashboard.json')),
+        );
+        await tester.pumpWidget(DashboardApp(controller: controller));
+        await tester.pump();
+        final previousFocus = FocusManager.instance.primaryFocus;
+        controller.acceptFrame(jsonEncode(fixture('examples/snapshot.json')));
+        controller.acceptFrame(jsonEncode(fixture('examples/overlay.json')));
+        await tester.pump();
+        expect(find.text('Briefing ready'), findsOneWidget);
+        final overlayFocus = FocusManager.instance.primaryFocus;
+        expect(overlayFocus, isNot(previousFocus));
+        for (final key in [
+          LogicalKeyboardKey.arrowDown,
+          LogicalKeyboardKey.arrowUp,
+          LogicalKeyboardKey.arrowLeft,
+          LogicalKeyboardKey.arrowRight,
+        ]) {
+          await tester.sendKeyEvent(key);
+          await tester.pump();
+          expect(FocusManager.instance.primaryFocus, overlayFocus);
+        }
+        if (dismissal == 'expiry') {
+          controller.overlay = null;
+          controller.notifyListeners();
+        } else {
+          await tester.sendKeyEvent(
+            dismissal == 'escape'
+                ? LogicalKeyboardKey.escape
+                : LogicalKeyboardKey.enter,
+          );
+        }
+        await tester.pump();
+        await tester.pump();
+        expect(controller.dismissed, dismissal == 'expiry' ? 0 : 1);
+        expect(controller.activated, isEmpty);
+        expect(controller.overlay, isNull);
+        expect(FocusManager.instance.primaryFocus, previousFocus);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        expect(controller.activated, ['todos/t2']);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox());
+        controller.dispose();
+      },
+    );
+  }
 
   testWidgets('maximum contract font scale remains bounded', (tester) async {
     final contracts = loadContracts();

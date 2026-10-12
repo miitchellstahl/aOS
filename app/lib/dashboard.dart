@@ -110,7 +110,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(64, 40, 64, 40),
                           child: FocusTraversalGroup(
-                            descendantsAreFocusable: controller.overlay == null,
                             descendantsAreTraversable:
                                 controller.overlay == null,
                             policy: ReadingOrderTraversalPolicy(),
@@ -192,7 +191,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         if (controller.overlay != null)
-                          Positioned.fill(child: _notification(accent)),
+                          Positioned.fill(
+                            child: FocusScope(child: _notification(accent)),
+                          ),
                       ],
                     ),
                   ),
