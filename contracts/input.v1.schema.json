@@ -50,6 +50,12 @@
         "kind": {
           "const": "overlay_dismissed"
         },
+        "overlay_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
         "client_event_id": {
           "type": "string",
           "minLength": 1,
@@ -64,7 +70,8 @@
       "required": [
         "kind",
         "client_event_id",
-        "observed_revision"
+        "observed_revision",
+        "overlay_id"
       ],
       "additionalProperties": false
     },

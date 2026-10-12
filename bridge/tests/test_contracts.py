@@ -154,7 +154,12 @@ def test_state_byte_boundary_including_utf8(contracts: Contracts) -> None:
 @pytest.mark.parametrize(
     "intent",
     [
-        {"kind": "overlay_dismissed", "client_event_id": "dismiss-1", "observed_revision": 0},
+        {
+            "kind": "overlay_dismissed",
+            "client_event_id": "dismiss-1",
+            "observed_revision": 0,
+            "overlay_id": "sample-overlay",
+        },
         {"kind": "remote_key", "client_event_id": "remote-1", "observed_revision": 3, "key": "ok"},
     ],
 )
@@ -187,7 +192,11 @@ def test_invalid_input(contracts: Contracts, change: dict[str, Any]) -> None:
         {"type": "CUSTOM", "name": "aos.heartbeat", "value": {"revision": 0}},
         {"type": "CUSTOM", "name": "aos.device", "value": {"action": "active_source"}},
         {"type": "CUSTOM", "name": "aos.remote_key", "value": {"key": "up"}},
-        {"type": "CUSTOM", "name": "aos.overlay_dismissed", "value": {}},
+        {
+            "type": "CUSTOM",
+            "name": "aos.overlay_dismissed",
+            "value": {"overlay_id": "sample-overlay"},
+        },
     ],
 )
 def test_supported_custom_events(contracts: Contracts, event: dict[str, Any]) -> None:

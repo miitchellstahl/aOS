@@ -9,6 +9,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
+from uuid import uuid4
 
 import jsonpatch
 
@@ -238,6 +239,8 @@ class Owner:
 
     async def custom(self, event: dict[str, Any]) -> None:
         self.contracts.validate_custom(event)
+        if event["name"] == "aos.overlay":
+            event = {**event, "value": {**event["value"], "overlay_id": uuid4().hex}}
         async with self.lock:
             self._publish(self._prepare_frames(event))
 
@@ -296,7 +299,11 @@ class Owner:
             )
             frames = (
                 self._prepare_frames(
-                    {"type": "CUSTOM", "name": "aos.overlay_dismissed", "value": {}}
+                    {
+                        "type": "CUSTOM",
+                        "name": "aos.overlay_dismissed",
+                        "value": {"overlay_id": payload["overlay_id"]},
+                    }
                 )
                 if payload["kind"] == "overlay_dismissed"
                 else {}

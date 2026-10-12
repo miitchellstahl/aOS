@@ -84,6 +84,41 @@ async def test_slow_subscriber_overflow_disconnects_and_reconnects(owner: Owner)
     assert reconnected.queue.empty()
 
 
+async def test_notification_identities_are_distinct_and_dismissals_are_scoped(owner: Owner) -> None:
+    _, subscriber = await owner.subscribe()
+    authored = {
+        "type": "CUSTOM",
+        "name": "aos.overlay",
+        "value": {"message": "Same message", "duration_s": 5},
+    }
+    await owner.custom(authored)
+    first = await subscriber.queue.get()
+    await owner.custom(authored)
+    second = await subscriber.queue.get()
+    first_id = first["value"]["overlay_id"]
+    assert len(first_id) == 32
+    assert first_id != second["value"]["overlay_id"]
+    assert "overlay_id" not in authored["value"]
+    await owner.enqueue(
+        {
+            "kind": "overlay_dismissed",
+            "client_event_id": "dismiss-old",
+            "observed_revision": 0,
+            "overlay_id": first_id,
+        }
+    )
+    dismissal = await subscriber.queue.get()
+    assert dismissal == {
+        "type": "CUSTOM",
+        "name": "aos.overlay_dismissed",
+        "value": {"overlay_id": first_id},
+    }
+    owner.contracts.validate_event(first)
+    owner.contracts.validate_event(second)
+    owner.contracts.validate_event(dismissal)
+    assert owner.queue["pending"][0]["payload"]["overlay_id"] == first_id
+
+
 async def test_stream_snapshot_heartbeat_delta_and_cleanup(owner: Owner) -> None:
     owner.settings = replace(owner.settings, heartbeat_s=0.01)
     snapshot, subscriber = await owner.subscribe()

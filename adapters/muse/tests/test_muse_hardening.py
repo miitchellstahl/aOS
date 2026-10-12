@@ -13,7 +13,12 @@ EVENT = {
     "id": 1,
     "kind": "overlay_dismissed",
     "created_at": "2026-10-12T19:00:00Z",
-    "payload": {"kind": "overlay_dismissed", "client_event_id": "fake-one", "observed_revision": 0},
+    "payload": {
+        "kind": "overlay_dismissed",
+        "client_event_id": "fake-one",
+        "observed_revision": 0,
+        "overlay_id": "fake-overlay",
+    },
 }
 
 

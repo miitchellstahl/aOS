@@ -36,6 +36,7 @@ class DisplayController extends ChangeNotifier {
   String? streamDiagnostic;
   String? inputDiagnostic;
   String? overlay;
+  String? _overlayId;
   Timer? _overlayTimer;
   Timer? _retryTimer;
   bool _alive = true;
@@ -113,7 +114,12 @@ class DisplayController extends ChangeNotifier {
         }
       } else if (event.name == 'aos.overlay') {
         final value = event.value as Map;
+        final id = value['overlay_id'];
+        if (id is! String) {
+          throw const FormatException('Committed overlay requires an identity');
+        }
         _overlayTimer?.cancel();
+        _overlayId = id;
         overlay = value['message'] as String;
         _dismissIntent = null;
         _overlayTimer = Timer(
@@ -121,7 +127,7 @@ class DisplayController extends ChangeNotifier {
           _clearOverlay,
         );
       } else if (event.name == 'aos.overlay_dismissed') {
-        _clearOverlay();
+        if ((event.value as Map)['overlay_id'] == _overlayId) _clearOverlay();
       }
       // remote_key/device events do not execute device actions in the display.
       // the scoped CEC service injects keyboard events; no duplicate dispatch.
@@ -207,7 +213,10 @@ class DisplayController extends ChangeNotifier {
   Future<void> dismissOverlay() async {
     if (overlay == null || _dismissing || !_alive) return;
     _dismissing = true;
-    _dismissIntent ??= _intent('overlay_dismissed');
+    _dismissIntent ??= {
+      ..._intent('overlay_dismissed'),
+      'overlay_id': _overlayId,
+    };
     final intent = _dismissIntent!;
     contracts.input(intent);
     try {
@@ -227,6 +236,7 @@ class DisplayController extends ChangeNotifier {
   void _clearOverlay() {
     _overlayTimer?.cancel();
     overlay = null;
+    _overlayId = null;
     _dismissIntent = null;
     if (_alive) notifyListeners();
   }

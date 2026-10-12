@@ -296,7 +296,12 @@ def test_overlay_and_dismissal_do_not_refresh_content(client: TestClient) -> Non
     assert client.post("/v1/overlay", json={"message": "hello", "duration_s": 5}).status_code == 200
     event = {"type": "CUSTOM", "name": "aos.heartbeat", "value": {"revision": 0}}
     assert client.post("/v1/ingest", json=event).status_code == 403
-    intent = {"kind": "overlay_dismissed", "client_event_id": "dismiss", "observed_revision": 0}
+    intent = {
+        "kind": "overlay_dismissed",
+        "client_event_id": "dismiss",
+        "observed_revision": 0,
+        "overlay_id": "sample-overlay",
+    }
     assert (
         client.post(
             "/v1/input", json=intent, headers={"Authorization": "Bearer display-secret"}

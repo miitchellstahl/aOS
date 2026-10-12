@@ -38,6 +38,11 @@ validate final state and unique IDs. Failure changes no file or stream state.
 Limits: 128 KiB request/state, 128 patch operations, 32 pending stream frames;
 outbound event envelopes allow 129 KiB so maximum-size state can rehydrate;
 bounded durable queue (default 1,000 pending events) and deduplication history.
+
+The bridge assigns each emitted overlay a fresh `value.overlay_id`. Both the
+`overlay_dismissed` input intent and `aos.overlay_dismissed` event require that
+identity; a delayed dismissal must not clear a newer notification.
+
 422 invalid payload, 409 stale revision, 401 bad credential, 403 forbidden action,
 413 excessive body, 503 storage/device/queue failure. Errors have `detail` and
 where applicable field/JSON pointer diagnostics; do not include secrets.

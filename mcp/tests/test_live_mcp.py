@@ -124,7 +124,9 @@ async def test_tools_live_bridge_sse_queue_and_fake_device(
                 overlay = await next_kind(lines, "CUSTOM")
                 if overlay["name"] == "aos.overlay":
                     break
-            assert overlay["value"] == {"message": "Hello", "duration_s": 5}
+            assert overlay["value"]["message"] == "Hello"
+            assert overlay["value"]["duration_s"] == 5
+            assert len(overlay["value"]["overlay_id"]) == 32
             assert (await call(mcp, "get_dashboard"))["updated_at"] == patched["updated_at"]
         todo_index = next(i for i, s in enumerate(patched["sections"]) if s["type"] == "todos")
         todo = patched["sections"][todo_index]

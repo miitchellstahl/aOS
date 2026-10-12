@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -183,6 +184,46 @@ void main() {
     },
   );
 
+  test('delayed old dismissal never clears a newer notification', () async {
+    final received = Completer<Map>();
+    final release = Completer<void>();
+    server.listen((request) async {
+      received.complete(
+        jsonDecode(await utf8.decoder.bind(request).join()) as Map,
+      );
+      await release.future;
+      request.response.headers.contentType = ContentType.json;
+      request.response.write('{"id":3}');
+      await request.response.close();
+    });
+    display.acceptFrame(jsonEncode(fixture('examples/overlay.json')));
+    final pending = display.dismissOverlay();
+    final intent = await received.future;
+    expect(intent['overlay_id'], 'sample-overlay');
+    final next = fixture('examples/overlay.json') as Map;
+    next['value']['overlay_id'] = 'new-overlay';
+    next['value']['message'] = 'New notification';
+    display.acceptFrame(jsonEncode(next));
+    display.acceptFrame(
+      jsonEncode({
+        'type': 'CUSTOM',
+        'name': 'aos.overlay_dismissed',
+        'value': {'overlay_id': intent['overlay_id']},
+      }),
+    );
+    release.complete();
+    await pending;
+    expect(display.overlay, 'New notification');
+    display.acceptFrame(
+      jsonEncode({
+        'type': 'CUSTOM',
+        'name': 'aos.overlay_dismissed',
+        'value': {'overlay_id': 'new-overlay'},
+      }),
+    );
+    expect(display.overlay, isNull);
+  });
+
   test(
     'authoritative overlay dismissal and duration expiry clear overlays',
     () async {
@@ -190,7 +231,11 @@ void main() {
         jsonEncode({
           'type': 'CUSTOM',
           'name': 'aos.overlay',
-          'value': {'message': 'Short notification', 'duration_s': 1},
+          'value': {
+            'message': 'Short notification',
+            'duration_s': 1,
+            'overlay_id': 'short-overlay',
+          },
         }),
       );
       await Future<void>.delayed(const Duration(milliseconds: 1100));
@@ -200,7 +245,7 @@ void main() {
         jsonEncode({
           'type': 'CUSTOM',
           'name': 'aos.overlay_dismissed',
-          'value': {},
+          'value': {'overlay_id': 'sample-overlay'},
         }),
       );
       expect(display.overlay, isNull);

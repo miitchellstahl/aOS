@@ -22,6 +22,12 @@
               "type": "number",
               "minimum": 1,
               "maximum": 30
+            },
+            "overlay_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[A-Za-z0-9_-]+$"
             }
           },
           "required": [
@@ -148,8 +154,15 @@
         },
         "value": {
           "type": "object",
-          "properties": {},
-          "required": [],
+          "properties": {
+            "overlay_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[A-Za-z0-9_-]+$"
+            }
+          },
+          "required": ["overlay_id"],
           "additionalProperties": false
         }
       },
