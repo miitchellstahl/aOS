@@ -131,6 +131,9 @@ rename to a safe `.json` basename and wrapper
 validates, commits and emits; processed/rejected files are receipts, not another
 state store. Keep producer `.tmp` files private until final chmod/group and rename.
 
+Transient queue/storage failures leave commands in the inbox for retry; malformed
+commands and stale revisions become rejected receipts.
+
 ## Verification
 
 Run `.venv/bin/pytest adapters/cec/tests adapters/muse/tests -q`,

@@ -120,7 +120,12 @@ class Inbox:
                 await self.ingest(command["event"], expected, source_id)
                 destination_name = "processed"
                 self.last_error = None
-            except (ValueError, OSError, UnicodeError, RecursionError, BridgeError):
+            except BridgeError as error:
+                if error.status == 429 or error.status >= 500:
+                    self.last_error = "inbox temporarily unavailable"
+                    continue
+                self.last_error = "inbox command rejected"
+            except (ValueError, OSError, UnicodeError, RecursionError):
                 self.last_error = "inbox command rejected"
             finally:
                 if fd is not None:

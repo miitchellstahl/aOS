@@ -16,6 +16,7 @@ from aos_bridge.app import create_app, stream
 from aos_bridge.contracts import Contracts
 from aos_bridge.owner import Owner
 from aos_bridge.settings import Settings
+from aos_bridge.store import StorageError
 from fastapi.testclient import TestClient
 
 
@@ -62,6 +63,57 @@ async def test_out_of_order_ack_history_retention_survives_restart(settings: Set
         assert len(owner.queue["history"]) == 1
     finally:
         owner.close()
+
+
+@pytest.mark.parametrize("failure", ["queue", "storage"])
+async def test_inbox_retries_transient_ingest_failures(
+    settings: Settings, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    directory = settings.state_dir.parent / "inbox"
+    settings = replace(settings, inbox_dir=directory, inbox_interval_s=60, queue_limit=1)
+    app = create_app(settings)
+    async with app.router.lifespan_context(app):
+        owner = app.state.owner
+        inbox = app.state.inbox
+        original_write = owner.store.write
+        if failure == "queue":
+            await owner.enqueue(
+                {
+                    "kind": "remote_key",
+                    "client_event_id": "first",
+                    "observed_revision": 0,
+                    "key": "ok",
+                }
+            )
+        else:
+
+            def unavailable(*args: Any, **kwargs: Any) -> None:
+                raise StorageError("unavailable")
+
+            monkeypatch.setattr(owner.store, "write", unavailable)
+        command = directory / "retry.json"
+        command.write_text(
+            json.dumps(
+                {
+                    "expected_revision": 0,
+                    "event": {"type": "CUSTOM", "name": "aos.remote_key", "value": {"key": "up"}},
+                }
+            )
+        )
+        original = command.read_bytes()
+        assert await inbox.scan_once() == 0
+        assert command.read_bytes() == original
+        assert list((directory / "rejected").iterdir()) == []
+        if failure == "queue":
+            await owner.ack([1])
+        else:
+            monkeypatch.setattr(owner.store, "write", original_write)
+        assert await inbox.scan_once() == 1
+        assert not command.exists()
+        assert (directory / "processed/retry.json").read_bytes() == original
+        assert len(owner.queue["pending"]) == 1
+        assert owner.queue["pending"][0]["payload"]["key"] == "up"
+        assert inbox.last_error is None
 
 
 async def test_inbox_pending_dedup_after_receipt_failure_and_restart(
