@@ -1,0 +1,52 @@
+[Unit]
+Description=aOS fixed Flutter dashboard on DRM/KMS (no window server)
+After=local-fs.target systemd-udev-settle.service aos-cec.service
+Wants=aos-cec.service
+Conflicts=getty@tty1.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=aos-display
+Group=aos-display
+SupplementaryGroups=aos-state aos-display-auth
+EnvironmentFile=/etc/aos/display.env
+ExecStart=/opt/aos/current/runtime/flutter-pi --release /opt/aos/current/app
+WorkingDirectory=/opt/aos/current/app
+Restart=on-failure
+RestartSec=3
+UMask=0077
+TTYPath=/dev/tty1
+StandardInput=tty
+StandardOutput=journal
+StandardError=journal
+TTYReset=true
+TTYVHangup=true
+TTYVTDisallocate=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=false
+DevicePolicy=closed
+DeviceAllow=/dev/dri/card1 rw
+DeviceAllow=/dev/dri/renderD128 rw
+DeviceAllow=/dev/tty1 rw
+DeviceAllow=char-input r
+RestrictAddressFamilies=AF_UNIX AF_INET
+IPAddressDeny=any
+IPAddressAllow=localhost
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+MemoryMax=1G
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+{
+  "type": "CUSTOM",
+  "name": "aos.overlay",
+  "value": {
+    "message": "Briefing ready",
+    "duration_s": 5
+  }
+}

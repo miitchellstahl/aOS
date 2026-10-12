@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aos.local/contracts/custom-events.v1",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "CUSTOM"
+        },
+        "name": {
+          "const": "aos.overlay"
+        },
+        "value": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "duration_s": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 30
+            }
+          },
+          "required": [
+            "message",
+            "duration_s"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "CUSTOM"
+        },
+        "name": {
+          "const": "aos.heartbeat"
+        },
+        "value": {
+          "type": "object",
+          "properties": {
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "revision"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "CUSTOM"
+        },
+        "name": {
+          "const": "aos.device"
+        },
+        "value": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "enum": [
+                "power_on",
+                "power_off",
+                "active_source"
+              ]
+            }
+          },
+          "required": [
+            "action"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "CUSTOM"
+        },
+        "name": {
+          "const": "aos.remote_key"
+        },
+        "value": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "enum": [
+                "up",
+                "down",
+                "left",
+                "right",
+                "ok",
+                "back"
+              ]
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "CUSTOM"
+        },
+        "name": {
+          "const": "aos.overlay_dismissed"
+        },
+        "value": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

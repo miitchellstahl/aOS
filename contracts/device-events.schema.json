@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "kind": {
+      "enum": [
+        "todo_toggle",
+        "overlay_dismissed",
+        "remote_key"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "$ref": "input.v1.schema.json"
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "created_at",
+    "payload"
+  ],
+  "additionalProperties": false
+}

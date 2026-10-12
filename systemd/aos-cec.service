@@ -1,0 +1,43 @@
+[Unit]
+Description=aOS restricted CEC navigation and device control
+After=systemd-udev-settle.service
+Wants=systemd-udev-settle.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=aos-cec
+Group=aos-control
+EnvironmentFile=/etc/aos/cec.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/aos/current/.venv/bin/python -m aos_cec
+RuntimeDirectory=aos
+RuntimeDirectoryMode=0750
+Restart=on-failure
+RestartSec=3
+UMask=0027
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=false
+DevicePolicy=closed
+DeviceAllow=/dev/cec0 rw
+DeviceAllow=/dev/uinput rw
+ReadWritePaths=/run/aos
+RestrictAddressFamilies=AF_UNIX
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+MemoryMax=128M
+TasksMax=32
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target

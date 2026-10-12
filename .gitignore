@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.env
+*.token
+.state/
+dist/
+.dart_tool/
+.flutter-plugins-dependencies
+build/
+app/linux/flutter/ephemeral/
+app/web/
+.idea/

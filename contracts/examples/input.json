@@ -1,0 +1,8 @@
+{
+  "kind": "todo_toggle",
+  "client_event_id": "demo-1",
+  "observed_revision": 0,
+  "section_id": "todos",
+  "target_id": "t1",
+  "done": true
+}
