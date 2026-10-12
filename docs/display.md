@@ -87,8 +87,9 @@ Snapshots are validated before publication. RFC 6902 patches apply to a deep
 copy, then the entire resulting dashboard is validated and frozen before it is
 published. Revisions must advance exactly by one for a delta. Revision `test`
 operations are enforced by the patch library; the shared example without a
-leading `test` also works. Dashboard and SSE JSON payloads are capped at 128 KiB;
-patches at 128 operations. SSE unterminated lines and SDK message buffers are
+leading `test` also works. Dashboard JSON is capped at 128 KiB; SSE envelopes
+allow 129 KiB to accommodate maximum-size state. Patches allow 128 operations.
+SSE unterminated lines and SDK message buffers are
 bounded. Invalid/corrupt/inapplicable events retain the last-good state, close the
 connection and reconnect for a fresh snapshot, not partial patch publication.
 
