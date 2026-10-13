@@ -129,16 +129,31 @@ freshly updated. The huge wall clock is local OS time, independently ticking.
 ## Native input and layout
 
 The six fixed regions are clock, weather, agenda, todos, briefing and status,
-using a dark cinematic background, warm contract-provided accent and a 1920×1080
-couch-legible design scaled to the display without arbitrary section rendering.
+using an Apple TV–inspired, Liquid Glass–inspired treatment: a static atmospheric
+background, translucent rounded cards, frosted blur, fine highlights and lifted
+remote focus. These are native Flutter surfaces, not Apple's proprietary material
+or a tvOS runtime. The contract-provided accent remains in icons and feedback;
+white focus outlines stay visible independently of that accent. The 1920×1080
+couch-oriented design scales to the display without arbitrary section rendering.
 Schema-bounded lists scroll within their regions; rows and sections retain ID
-keys. Text is bounded/ellipsized, including maximum `font_scale`.
+keys. Text is bounded/ellipsized, including maximum `font_scale`. Weather summary
+is one line so it cannot consume the temperature's space at enlarged text sizes.
+Partially visible list items can be reached by remote focus, which scrolls them
+into view.
 
 Keyboard arrows/D-pad move focus using Flutter focus traversal. Tab/Shift-Tab
 also work. Enter, Space or Select activate a focused todo. Escape/back dismiss
 an overlay, otherwise move focus back. Focused rows scroll into view. Overlays
 are native text panels, take input focus and disable underlying traversal; they
 expire by duration or accept dismissal via Enter/Escape. No HTML is interpreted.
+
+Non-overlapping glass surfaces use one shared `BackdropGroup` and clipped
+12-pixel blur filters. The overlapping notification uses an independent filter
+to avoid shared-backdrop artifacts. The procedural background is isolated in a
+`RepaintBoundary`; it has no assets, idle animation or network fetches. Focus lift
+and highlight transitions last 180 ms and honor Flutter's reduced-motion flag,
+including focused-row scrolling. Pi 4 GPU cost/frame pacing still needs hardware
+measurement; host rendering is not a performance guarantee.
 
 A todo click submits a durable `/v1/input` intent with random `client_event_id`,
 `observed_revision`, section/item IDs and desired value. An HTTP receipt marks
@@ -168,7 +183,7 @@ flutter build linux --release
 ```
 
 Verified in this environment: Dart formatting clean, `flutter analyze` clean,
-**38 Flutter tests passed**, Linux x64 release built, 12 contract assets synced
+Flutter tests passed, Linux x64 release built, 12 contract assets synced
 and checked, and `ruff check`, `ruff format --check` and `mypy` passed for the
 app contract-sync tool. Shared schemas/sample/fixture files were also confirmed
 present under the built bundle's `data/flutter_assets/assets/contracts/` paths.
@@ -176,8 +191,8 @@ present under the built bundle's `data/flutter_assets/assets/contracts/` paths.
 The host GTK build requires `clang`, `cmake`, `ninja-build`, `pkg-config`,
 `libgtk-3-dev` and `libstdc++-12-dev`. These are **host build prerequisites**, not
 an instruction to install X11/GTK on the Pi. The resulting x64 verification
-bundle is `app/build/linux/x64/release/bundle/`. No graphical app launch or manual
-GUI test was performed; offscreen Flutter widget tests exercise section rendering,
+bundle is `app/build/linux/x64/release/bundle/`. Native host visual evidence is
+included on the implementation PR; offscreen Flutter widget tests exercise section rendering,
 empty unknown slots, maximum font scale, D-pad/Enter and overlay Escape handling.
 Loopback HTTP tests exercise SDK connect, initial-failure recovery, idle
 reconnect, rotated tokens, invalid delta rehydration, SSE bounds and durable todo

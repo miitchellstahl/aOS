@@ -10,7 +10,9 @@ and narrowly scoped device control.
 
 ## Current implementation
 
-- Six fixed Flutter sections: clock, agenda, todos, weather, briefing, status.
+- Six fixed Flutter sections: clock, agenda, todos, weather, briefing, status,
+  with Apple TV–inspired glass cards and remote-focus lift (native Flutter,
+  not Apple's proprietary Liquid Glass material).
 - Revision-checked dashboard replacement/JSON Patch, atomic file persistence,
   last-good recovery, and snapshot-first SSE.
 - Durable TV input intents, at-least-once polling, idempotent acknowledgments.

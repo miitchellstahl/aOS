@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,12 +16,11 @@ class DashboardApp extends StatelessWidget {
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: const Color(0xff101216),
+      scaffoldBackgroundColor: const Color(0xff080f1b),
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xfff5a623),
         brightness: Brightness.dark,
       ),
-      fontFamily: 'Roboto',
       textTheme: const TextTheme(
         bodyLarge: TextStyle(fontSize: 34, height: 1.25),
         bodyMedium: TextStyle(fontSize: 30, height: 1.3),
@@ -97,58 +97,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       (theme['font_scale'] as num).toDouble(),
                     ),
                   ),
-                  child: DecoratedBox(
-                    decoration: const BoxDecoration(
-                      gradient: RadialGradient(
-                        center: Alignment(-0.8, -0.9),
-                        radius: 1.4,
-                        colors: [Color(0xff30251c), Color(0xff101216)],
-                      ),
-                    ),
+                  child: BackdropGroup(
                     child: Stack(
                       children: [
+                        const Positioned.fill(
+                          child: RepaintBoundary(
+                            child: CustomPaint(painter: _AtmospherePainter()),
+                          ),
+                        ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(64, 40, 64, 40),
+                          padding: const EdgeInsets.fromLTRB(64, 44, 64, 44),
                           child: FocusTraversalGroup(
                             descendantsAreTraversable:
                                 controller.overlay == null,
                             policy: ReadingOrderTraversalPolicy(),
                             child: Column(
                               children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      'aOS',
-                                      style: TextStyle(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.w700,
-                                        color: accent,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 20),
-                                    const Text(
-                                      'AT HOME',
-                                      style: TextStyle(
-                                        fontSize: 22,
-                                        letterSpacing: 5,
-                                        color: Color(0xffb4b1aa),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 32),
-                                    const Expanded(
-                                      child: Text(
-                                        'ARROWS  navigate     ENTER  select     ESC  back',
-                                        textAlign: TextAlign.right,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          color: Color(0xffb4b1aa),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                _header(accent),
                                 const SizedBox(height: 28),
                                 Expanded(
                                   flex: 6,
@@ -168,7 +133,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                                 const SizedBox(height: 28),
                                 Expanded(
-                                  flex: 9,
+                                  flex: 10,
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
@@ -183,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                                 const SizedBox(height: 28),
                                 SizedBox(
-                                  height: 190,
+                                  height: 176,
                                   child: _statusPanel(accent),
                                 ),
                               ],
@@ -206,6 +171,80 @@ class _DashboardScreenState extends State<DashboardScreen> {
     },
   );
 
+  Widget _header(Color accent) => SizedBox(
+    height: 76,
+    child: Row(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              const Text(
+                'aOS',
+                style: TextStyle(
+                  fontSize: 40,
+                  letterSpacing: -2,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 24),
+              Container(
+                width: 1,
+                height: 26,
+                color: Colors.white.withValues(alpha: 0.25),
+              ),
+              const SizedBox(width: 24),
+              const Expanded(
+                child: Text(
+                  'Your day, at a glance.',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 25, color: Color(0xffd4dfe9)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 32),
+        _GlassSurface(
+          radius: 32,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.home_rounded, color: accent, size: 26),
+                const SizedBox(width: 12),
+                const Text(
+                  'Home',
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 32),
+        const Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Icon(Icons.open_with_rounded, size: 22, color: Color(0xffd4dfe9)),
+              SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  'Navigate   ·   Enter to select   ·   Esc to go back',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 20, color: Color(0xffd4dfe9)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+
   Widget _panel(
     String type,
     String title,
@@ -216,6 +255,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return _Panel(
       key: ValueKey<String>(section?['id'] as String? ?? 'empty-$type'),
       title: section == null ? '' : title,
+      icon: switch (type) {
+        'clock' => Icons.schedule_rounded,
+        'weather' => Icons.thermostat_rounded,
+        'agenda' => Icons.calendar_today_rounded,
+        'briefing' => Icons.auto_awesome_outlined,
+        _ => null,
+      },
       accent: accent,
       child: section == null ? const SizedBox.expand() : body(section),
     );
@@ -286,7 +332,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             '${weekdays[now.weekday - 1]}, ${months[now.month - 1]} ${now.day}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 34, color: Color(0xffc7c2b9)),
+            style: const TextStyle(fontSize: 32, color: Color(0xffd4dfe9)),
           ),
       ],
     );
@@ -317,7 +363,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         Text(
           section['summary'] as String,
-          maxLines: 2,
+          maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 32),
         ),
@@ -358,7 +404,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 26,
-                        color: Color(0xffb4b1aa),
+                        color: Color(0xffbecbd9),
                       ),
                     ),
                 ],
@@ -380,6 +426,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return _Panel(
       key: const ValueKey('todos-slot'),
       title: sections.isEmpty ? '' : 'TO DO',
+      icon: Icons.check_circle_outline_rounded,
       accent: accent,
       child: sections.isEmpty
           ? const SizedBox.expand()
@@ -407,7 +454,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ? Icons.check_circle
                             : Icons.radio_button_unchecked,
                         size: 34,
-                        color: done ? accent : const Color(0xffb4b1aa),
+                        color: done ? accent : const Color(0xffbecbd9),
                       ),
                       const SizedBox(width: 18),
                       Expanded(
@@ -421,7 +468,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               style: TextStyle(
                                 fontSize: 32,
                                 color: done
-                                    ? const Color(0xffb4b1aa)
+                                    ? const Color(0xffbecbd9)
                                     : Colors.white,
                                 decoration: done
                                     ? TextDecoration.lineThrough
@@ -471,7 +518,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 '—  $item',
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 30, color: Color(0xffd0cbc3)),
+                style: const TextStyle(fontSize: 30, color: Color(0xffd4dfe9)),
               ),
             ),
           ),
@@ -521,7 +568,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 textAlign: TextAlign.right,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 24, color: Color(0xffb4b1aa)),
+                style: const TextStyle(fontSize: 24, color: Color(0xffbecbd9)),
               ),
             ),
           ],
@@ -544,17 +591,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     alignment: Alignment.topLeft,
     child: Text(
       text,
-      style: const TextStyle(fontSize: 32, color: Color(0xffb4b1aa)),
+      style: const TextStyle(fontSize: 32, color: Color(0xffbecbd9)),
     ),
   );
 
   Widget _notification(Color accent) => ColoredBox(
-    color: const Color(0xcc08090b),
+    color: const Color(0x99080f1b),
     child: Center(
       child: SizedBox(
         width: 1100,
         child: _Panel(
           title: 'NOTIFICATION',
+          icon: Icons.notifications_none_rounded,
+          grouped: false,
           accent: accent,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -571,6 +620,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onPressed: () => unawaited(controller.dismissOverlay()),
                 style: TextButton.styleFrom(
                   foregroundColor: accent,
+                  backgroundColor: Colors.white.withValues(alpha: 0.1),
+                  shape: const StadiumBorder(),
                   textStyle: const TextStyle(fontSize: 30),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 36,
@@ -593,18 +644,18 @@ class _Panel extends StatelessWidget {
     required this.title,
     required this.accent,
     required this.child,
+    this.icon,
+    this.grouped = true,
   });
   final String title;
   final Color accent;
   final Widget child;
+  final IconData? icon;
+  final bool grouped;
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: const Color(0xe61b1d21),
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: const Color(0xff393735)),
-    ),
+  Widget build(BuildContext context) => _GlassSurface(
+    grouped: grouped,
     child: Padding(
       padding: const EdgeInsets.all(28),
       child: Column(
@@ -612,14 +663,26 @@ class _Panel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (title.isNotEmpty) ...[
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 23,
-                letterSpacing: 3,
-                fontWeight: FontWeight.w600,
-                color: accent,
-              ),
+            Row(
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 24, color: accent),
+                  const SizedBox(width: 12),
+                ],
+                Flexible(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      letterSpacing: 2.4,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xffd4dfe9),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
           ],
@@ -628,6 +691,117 @@ class _Panel extends StatelessWidget {
       ),
     ),
   );
+}
+
+class _GlassSurface extends StatelessWidget {
+  const _GlassSurface({
+    required this.child,
+    this.radius = 36,
+    this.grouped = true,
+  });
+
+  final Widget child;
+  final double radius;
+  final bool grouped;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(radius),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              Colors.white.withValues(alpha: 0.1),
+              const Color(0x99101927),
+            ),
+            Color.alphaBlend(
+              Colors.white.withValues(alpha: 0.025),
+              const Color(0x99101927),
+            ),
+          ],
+        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+      ),
+      child: child,
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(radius),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x40000000),
+            blurRadius: 28,
+            offset: Offset(0, 12),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: grouped
+            ? BackdropFilter.grouped(
+                filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: content,
+              )
+            : BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: content,
+              ),
+      ),
+    );
+  }
+}
+
+class _AtmospherePainter extends CustomPainter {
+  const _AtmospherePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bounds = Offset.zero & size;
+    canvas.drawRect(bounds, Paint()..color = const Color(0xff080f1b));
+    for (final (center, radius, color) in [
+      (const Alignment(-0.95, -0.8), 0.8, const Color(0xff315b76)),
+      (const Alignment(0.85, -0.65), 0.65, const Color(0xff416560)),
+      (const Alignment(0.35, 1.3), 0.9, const Color(0xff62433e)),
+    ]) {
+      canvas.drawRect(
+        bounds,
+        Paint()
+          ..shader = RadialGradient(
+            center: center,
+            radius: radius,
+            colors: [color, color.withValues(alpha: 0)],
+          ).createShader(bounds),
+      );
+    }
+    final horizon = Path()
+      ..moveTo(0, size.height * 0.7)
+      ..cubicTo(
+        size.width * 0.35,
+        size.height * 0.15,
+        size.width * 0.65,
+        size.height * 1.25,
+        size.width,
+        size.height * 0.45,
+      )
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(
+      horizon,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0x184ca5b4), Color(0x00132235)],
+        ).createShader(bounds),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_AtmospherePainter oldDelegate) => false;
 }
 
 class _FocusableRow extends StatefulWidget {
@@ -651,53 +825,78 @@ class _FocusableRowState extends State<_FocusableRow> {
   bool focused = false;
 
   @override
-  Widget build(BuildContext context) => FocusableActionDetector(
-    autofocus: widget.autofocus,
-    onFocusChange: (value) {
-      setState(() => focused = value);
-      if (value) {
-        Scrollable.ensureVisible(
-          context,
-          duration: const Duration(milliseconds: 150),
-          alignment: 0.5,
-        );
-      }
-    },
-    shortcuts: const {
-      SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
-      SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
-      SingleActivator(LogicalKeyboardKey.select): ActivateIntent(),
-      SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
-    },
-    actions: {
-      ActivateIntent: CallbackAction<ActivateIntent>(
-        onInvoke: (_) {
-          widget.onActivate?.call();
-          return null;
-        },
-      ),
-    },
-    child: Semantics(
-      button: widget.onActivate != null,
-      focused: focused,
-      child: GestureDetector(
-        onTap: widget.onActivate,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: focused
-                ? widget.accent.withValues(alpha: 0.08)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              width: 2,
-              color: focused ? widget.accent : Colors.transparent,
+  Widget build(BuildContext context) {
+    final duration = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 180);
+    return FocusableActionDetector(
+      autofocus: widget.autofocus,
+      onFocusChange: (value) {
+        setState(() => focused = value);
+        if (value) {
+          Scrollable.ensureVisible(context, duration: duration, alignment: 0.5);
+        }
+      },
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+        SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
+        SingleActivator(LogicalKeyboardKey.select): ActivateIntent(),
+        SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+      },
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            widget.onActivate?.call();
+            return null;
+          },
+        ),
+      },
+      child: Semantics(
+        button: widget.onActivate != null,
+        focused: focused,
+        child: GestureDetector(
+          onTap: widget.onActivate,
+          child: AnimatedScale(
+            scale: focused ? 1.025 : 1,
+            duration: duration,
+            curve: const Cubic(0.23, 1, 0.32, 1),
+            child: AnimatedContainer(
+              duration: duration,
+              curve: const Cubic(0.23, 1, 0.32, 1),
+              margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: focused
+                      ? [
+                          Colors.white.withValues(alpha: 0.2),
+                          Colors.white.withValues(alpha: 0.07),
+                        ]
+                      : [Colors.transparent, Colors.transparent],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  width: 2,
+                  color: focused
+                      ? Colors.white.withValues(alpha: 0.85)
+                      : Colors.transparent,
+                ),
+                boxShadow: focused
+                    ? [
+                        BoxShadow(
+                          color: widget.accent.withValues(alpha: 0.12),
+                          blurRadius: 18,
+                        ),
+                      ]
+                    : [],
+              ),
+              child: widget.child,
             ),
           ),
-          child: widget.child,
         ),
       ),
-    ),
-  );
+    );
+  }
 }
