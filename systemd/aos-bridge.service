@@ -1,0 +1,41 @@
+[Unit]
+Description=aOS single-writer loopback bridge
+After=local-fs.target aos-cec.service
+Wants=aos-cec.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=aos-bridge
+Group=aos-state
+SupplementaryGroups=aos-control aos-inbox aos-bridge-auth aos-display-auth aos-muse-auth
+EnvironmentFile=/etc/aos/bridge.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/aos/current/.venv/bin/python -m aos_bridge
+WorkingDirectory=/var/lib/aos
+Restart=on-failure
+RestartSec=3
+UMask=0027
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ReadWritePaths=/var/lib/aos /var/lib/aos-inbox
+RestrictAddressFamilies=AF_UNIX AF_INET
+IPAddressDeny=any
+IPAddressAllow=localhost
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+MemoryMax=512M
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,42 @@
+[Unit]
+Description=aOS optional Muse queue handoff companion
+After=aos-bridge.service network-online.target
+Wants=aos-bridge.service
+ConditionPathExists=/etc/aos/muse.enabled
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=aos-muse
+Group=aos-muse
+SupplementaryGroups=aos-muse-auth aos-inbox
+EnvironmentFile=/etc/aos/muse.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=HOME=/var/lib/aos-muse
+ExecStart=/opt/aos/current/.venv/bin/python -m aos_muse
+WorkingDirectory=/var/lib/aos-muse
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ReadWritePaths=/var/lib/aos-muse /var/lib/aos-inbox
+InaccessiblePaths=/var/lib/aos
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+MemoryMax=256M
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aos-appliance"
+version = "0.1.0"
+description = "aOS (agent OS): a local-only agent-driven TV appliance"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+dependencies = [
+  "fastapi>=0.115,<0.116",
+  "uvicorn>=0.35,<0.36",
+  "jsonschema[format]>=4.23,<5",
+  "jsonpatch>=1.33,<2",
+  "httpx>=0.28,<0.29",
+  "fastmcp==2.14.7",
+]
+
+[project.optional-dependencies]
+cec = ["evdev>=1.9,<2"]
+
+[dependency-groups]
+dev = ["pytest>=8.3,<9", "pytest-asyncio>=0.25,<1", "ruff>=0.9,<1", "mypy>=1.15,<2", "types-jsonschema"]
+
+[project.scripts]
+aos-bridge = "aos_bridge.__main__:main"
+aos-mcp = "aos_mcp.__main__:main"
+aos-cec = "aos_cec.__main__:main"
+aos-muse = "aos_muse.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["bridge/src/aos_bridge", "mcp/src/aos_mcp", "adapters/cec/src/aos_cec", "adapters/muse/src/aos_muse"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"contracts" = "aos_bridge/contracts"
+
+[tool.pytest.ini_options]
+testpaths = ["bridge/tests", "mcp/tests", "adapters/cec/tests", "adapters/muse/tests", "tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+
+[tool.mypy]
+python_version = "3.11"
+check_untyped_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+files = ["bridge/src", "mcp/src", "adapters/cec/src", "adapters/muse/src"]

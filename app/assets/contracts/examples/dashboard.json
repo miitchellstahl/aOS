@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "revision": 0,
+  "updated_at": "2026-10-12T19:00:00Z",
+  "theme": {
+    "mode": "dark",
+    "accent": "#f5a623",
+    "font_scale": 1
+  },
+  "sections": [
+    {
+      "id": "clock",
+      "type": "clock",
+      "show_date": true,
+      "format": "12h"
+    },
+    {
+      "id": "agenda",
+      "type": "agenda",
+      "events": [
+        {
+          "time": "9:00a",
+          "title": "Standup",
+          "where": "Zoom"
+        }
+      ]
+    },
+    {
+      "id": "todos",
+      "type": "todos",
+      "items": [
+        {
+          "id": "t1",
+          "label": "Call accountant",
+          "done": false
+        },
+        {
+          "id": "t2",
+          "label": "Buy milk",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "weather",
+      "type": "weather",
+      "temp_f": 68,
+      "summary": "Clear tonight"
+    },
+    {
+      "id": "briefing",
+      "type": "briefing",
+      "headline": "Your day, at a glance",
+      "items": [
+        "Connect a harness to keep this screen current."
+      ]
+    },
+    {
+      "id": "status",
+      "type": "status",
+      "note": "Waiting for the first agent update"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# CEC gets exactly the kernel HDMI adapter and restricted uinput writer.
+SUBSYSTEM=="cec", KERNEL=="cec0", OWNER="aos-cec", GROUP="aos-cec", MODE="0600"
+SUBSYSTEM=="misc", KERNEL=="uinput", OWNER="aos-cec", GROUP="aos-cec", MODE="0600"
+# dynamic event number, but only our six-key keyboard is readable by Flutter.
+SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="aOS CEC navigation", OWNER="aos-display", GROUP="aos-display", MODE="0600"

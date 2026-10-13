@@ -1,0 +1,39 @@
+[Unit]
+Description=aOS authenticated FastMCP loopback proxy
+After=aos-bridge.service
+Wants=aos-bridge.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=aos-mcp
+Group=aos-mcp
+SupplementaryGroups=aos-bridge-auth aos-mcp-auth
+EnvironmentFile=/etc/aos/mcp.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/aos/current/.venv/bin/python -m aos_mcp
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+IPAddressDeny=any
+IPAddressAllow=localhost
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+MemoryMax=512M
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

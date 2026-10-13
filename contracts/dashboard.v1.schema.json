@@ -1,0 +1,318 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aos.local/contracts/dashboard.v1",
+  "title": "aOS dashboard v1",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "theme": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "dark",
+            "light"
+          ]
+        },
+        "accent": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "font_scale": {
+          "type": "number",
+          "minimum": 0.8,
+          "maximum": 1.5
+        }
+      },
+      "required": [
+        "mode",
+        "accent",
+        "font_scale"
+      ],
+      "additionalProperties": false
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "type": {
+                "const": "clock"
+              },
+              "show_date": {
+                "type": "boolean"
+              },
+              "format": {
+                "enum": [
+                  "12h",
+                  "24h"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "show_date",
+              "format"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "type": {
+                "const": "agenda"
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "time": {
+                      "type": "string",
+                      "maxLength": 40
+                    },
+                    "title": {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    "where": {
+                      "type": "string",
+                      "maxLength": 120
+                    }
+                  },
+                  "required": [
+                    "time",
+                    "title"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 30
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "events"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "type": {
+                "const": "todos"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64,
+                      "pattern": "^[A-Za-z0-9_-]+$"
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    "done": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "label",
+                    "done"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 40
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "items"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "type": {
+                "const": "weather"
+              },
+              "temp_f": {
+                "type": "number",
+                "minimum": -150,
+                "maximum": 180
+              },
+              "summary": {
+                "type": "string",
+                "maxLength": 200
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "temp_f",
+              "summary"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "type": {
+                "const": "briefing"
+              },
+              "headline": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "maxItems": 10
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "headline",
+              "items"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "type": {
+                "const": "status"
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 300
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "note"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "type"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "type": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "not": {
+                  "enum": [
+                    "clock",
+                    "agenda",
+                    "todos",
+                    "weather",
+                    "briefing",
+                    "status"
+                  ]
+                }
+              }
+            },
+            "additionalProperties": true,
+            "maxProperties": 16
+          }
+        ]
+      },
+      "maxItems": 12,
+      "minItems": 1,
+      "contains": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "status"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "minContains": 1,
+      "maxContains": 1
+    }
+  },
+  "required": [
+    "version",
+    "revision",
+    "updated_at",
+    "theme",
+    "sections"
+  ],
+  "additionalProperties": false
+}

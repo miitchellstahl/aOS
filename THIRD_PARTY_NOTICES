@@ -1,0 +1,8 @@
+aOS project code is Apache-2.0 licensed (see LICENSE).
+
+The vendored AG-UI 1.0 JSON Schema is from ag-ui-protocol/ag-ui and distributed
+under the MIT license. Source, hash, and complete license are in contracts/ag-ui/.
+
+Flutter, flutter-pi, ag_ui, Python dependencies and any redistributable build
+artifacts retain their respective licenses. Release packaging must include their
+notices; a local developer build is not a certified redistribution bundle.

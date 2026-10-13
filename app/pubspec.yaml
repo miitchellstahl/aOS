@@ -1,0 +1,29 @@
+name: aos_display
+description: Native aOS appliance dashboard for flutter-pi.
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  ag_ui: ^0.3.0
+  json_schema: ^5.2.2
+  rfc_6902: ^0.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/contracts/dashboard.v1.schema.json
+    - assets/contracts/input.v1.schema.json
+    - assets/contracts/custom-events.schema.json
+    - assets/contracts/ag-ui/
+    - assets/contracts/examples/
+    - assets/contracts/fixtures/
